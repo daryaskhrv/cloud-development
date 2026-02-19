@@ -12,12 +12,10 @@ var redisCommander = builder.AddContainer(
 
 var api = builder.AddProject<Projects.CourseApp_Api>("courseapp-api")
     .WithReference(redis)
-    .WaitFor(redis)
-    .WithExternalHttpEndpoints();
+    .WaitFor(redis);
 
 builder.AddProject<Projects.Client_Wasm>("client")
     .WithReference(api)
-    .WaitFor(api)
-    .WithExternalHttpEndpoints();
+    .WaitFor(api);
 
 builder.Build().Run();
