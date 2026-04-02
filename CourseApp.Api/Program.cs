@@ -10,16 +10,6 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("wasm", policy =>
-    {
-        policy.AllowAnyOrigin()
-        .WithMethods("GET")
-        .WithHeaders("Content-Type");
-    });
-});
-
 builder.Services.AddSingleton<CourseGenerator>();
 builder.Services.AddScoped<CourseService>();
 
@@ -33,7 +23,6 @@ if (app.Environment.IsDevelopment())
 
 app.MapDefaultEndpoints();
 app.UseHttpsRedirection();
-app.UseCors("wasm");
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

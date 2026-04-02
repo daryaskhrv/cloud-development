@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.3.11505.172 d18.3
+VisualStudioVersion = 18.3.11505.172
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client.Wasm", "Client.Wasm\Client.Wasm.csproj", "{AE7EEA74-2FE0-136F-D797-854FD87E022A}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseApp.ServiceDefaults", "CourseApp.ServiceDefaults\CourseApp.ServiceDefaults.csproj", "{FA3F9ED2-E039-4168-AA5E-1E49E771AD99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CourseApp.AppHost", "CourseApp.AppHost\CourseApp.AppHost.csproj", "{8874AAD8-BCC8-4E48-B7AB-C39E7B5F0F53}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api.Gateway", "Api.Gateway\Api.Gateway.csproj", "{C99E72F4-9BA7-7D56-C88E-FB28534EFCB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{8874AAD8-BCC8-4E48-B7AB-C39E7B5F0F53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8874AAD8-BCC8-4E48-B7AB-C39E7B5F0F53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8874AAD8-BCC8-4E48-B7AB-C39E7B5F0F53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C99E72F4-9BA7-7D56-C88E-FB28534EFCB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C99E72F4-9BA7-7D56-C88E-FB28534EFCB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C99E72F4-9BA7-7D56-C88E-FB28534EFCB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C99E72F4-9BA7-7D56-C88E-FB28534EFCB6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
