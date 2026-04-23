@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CourseApp.Api.Messaging;
 using CourseApp.Domain.Entity;
 using Microsoft.Extensions.Caching.Distributed;
 
@@ -8,7 +9,8 @@ namespace CourseApp.Api.Services;
 /// Сервис для получения информации о курсе
 /// </summary>
 public class CourseService(IDistributedCache _cache, IConfiguration _configuration,
-                ILogger<CourseService> _logger, CourseGenerator _generator)
+                ILogger<CourseService> _logger, CourseGenerator _generator,
+                IProducerService _producer)
 {
     /// <summary>
     /// Получает курс по идентификатору из кэша или с помощью генератора
@@ -17,7 +19,7 @@ public class CourseService(IDistributedCache _cache, IConfiguration _configurati
     {
 
         var cacheKey = $"course-{id}";
-        _logger.LogInformation("Попытка получить курс {CourseId} из кэша",id);
+        _logger.LogInformation("Попытка получить курс {CourseId} из кэша", id);
         var cachedData = await _cache.GetStringAsync(cacheKey);
 
         if (!string.IsNullOrEmpty(cachedData))
@@ -42,6 +44,8 @@ public class CourseService(IDistributedCache _cache, IConfiguration _configurati
         _logger.LogInformation("Курс {CourseId} отсутствует в кэше. Начинаем генерацию", id);
 
         var course = _generator.Generate(id);
+
+        await _producer.SendMessage(course);
 
         try
         {

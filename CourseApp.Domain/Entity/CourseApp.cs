@@ -1,4 +1,6 @@
-﻿namespace CourseApp.Domain.Entity;
+﻿using System.Text.Json.Serialization;
+
+namespace CourseApp.Domain.Entity;
 
 /// <summary>
 /// Модель учебного курса
@@ -8,6 +10,7 @@ public class Course
     /// <summary>
     /// Идентификатор курса в системе
     /// </summary>
+    [JsonPropertyName("id")]
     public int Id { get; set; }
 
     /// <summary>

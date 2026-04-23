@@ -1,5 +1,8 @@
+using Amazon.SQS;
+using CourseApp.Api.Messaging;
 using CourseApp.Api.Services;
 using CourseApp.ServiceDefaults;
+using LocalStack.Client.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<CourseGenerator>();
 builder.Services.AddScoped<CourseService>();
+
+builder.Services.AddLocalStack(builder.Configuration);
+builder.Services.AddAwsService<IAmazonSQS>();
+builder.Services.AddScoped<IProducerService, SqsProducerService>();
 
 var app = builder.Build();
 
