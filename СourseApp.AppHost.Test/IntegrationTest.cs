@@ -15,22 +15,24 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
 {
     private static readonly JsonSerializerOptions _jsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    private IDistributedApplicationTestingBuilder? _builder;
     private DistributedApplication? _app;
 
     /// <inheritdoc/>
     public async Task InitializeAsync()
     {
         var cancellationToken = CancellationToken.None;
-        _builder = await DistributedApplicationTestingBuilder.CreateAsync<Projects.CourseApp_AppHost>(cancellationToken);
-        _builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
-        _builder.Services.AddLogging(logging =>
+        var builder = await DistributedApplicationTestingBuilder
+            .CreateAsync<Projects.CourseApp_AppHost>(cancellationToken);
+        builder.Configuration["DcpPublisher:RandomizePorts"] = "false";
+        builder.Services.AddLogging(logging =>
         {
             logging.AddXUnit(output);
             logging.SetMinimumLevel(LogLevel.Debug);
             logging.AddFilter("Aspire.Hosting.Dcp", LogLevel.Debug);
             logging.AddFilter("Aspire.Hosting", LogLevel.Debug);
         });
+        _app = await builder.BuildAsync(cancellationToken);
+        await _app.StartAsync(cancellationToken);
     }
 
     /// <summary>
@@ -44,19 +46,15 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
     [Fact]
     public async Task ApiToStorageIntegrationTest()
     {
-        var cancellationToken = CancellationToken.None;
-        _app = await _builder!.BuildAsync(cancellationToken);
-        await _app.StartAsync(cancellationToken);
-
         var id = new Random().Next(1, 100);
 
-        using var gatewayClient = _app.CreateHttpClient("api-gateway", "http");
+        using var gatewayClient = _app!.CreateHttpClient("api-gateway", "http");
         using var gatewayResponse = await gatewayClient.GetAsync($"/course?id={id}");
         var apiCourse = JsonSerializer.Deserialize<Course>(await gatewayResponse.Content.ReadAsStringAsync(), _jsonOptions);
 
         await Task.Delay(5000);
 
-        using var storageClient = _app.CreateHttpClient("service-filestorage", "http");
+        using var storageClient = _app!.CreateHttpClient("service-filestorage", "http");
         using var listResponse = await storageClient.GetAsync("/api/files");
         var fileList = JsonSerializer.Deserialize<List<string>>(await listResponse.Content.ReadAsStringAsync());
         using var fileResponse = await storageClient.GetAsync($"/api/files/course_{id}.json");
@@ -78,13 +76,9 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
     [Fact]
     public async Task CacheHitDoesNotDuplicateStorageObjectTest()
     {
-        var cancellationToken = CancellationToken.None;
-        _app = await _builder!.BuildAsync(cancellationToken);
-        await _app.StartAsync(cancellationToken);
-
         var id = new Random().Next(1, 100);
 
-        using var gatewayClient = _app.CreateHttpClient("api-gateway", "http");
+        using var gatewayClient = _app!.CreateHttpClient("api-gateway", "http");
         using var firstResponse = await gatewayClient.GetAsync($"/course?id={id}");
         var firstCourse = JsonSerializer.Deserialize<Course>(await firstResponse.Content.ReadAsStringAsync(), _jsonOptions);
         using var secondResponse = await gatewayClient.GetAsync($"/course?id={id}");
@@ -92,7 +86,7 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
 
         await Task.Delay(5000);
 
-        using var storageClient = _app.CreateHttpClient("service-filestorage", "http");
+        using var storageClient = _app!.CreateHttpClient("service-filestorage", "http");
         using var listResponse = await storageClient.GetAsync("/api/files");
         var fileList = JsonSerializer.Deserialize<List<string>>(await listResponse.Content.ReadAsStringAsync());
 
@@ -111,14 +105,10 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
     [Fact]
     public async Task MultipleDistinctCoursesAreStoredTest()
     {
-        var cancellationToken = CancellationToken.None;
-        _app = await _builder!.BuildAsync(cancellationToken);
-        await _app.StartAsync(cancellationToken);
-
         var ids = new[] { 11, 22, 33 };
         var apiCourses = new Dictionary<int, Course>();
 
-        using var gatewayClient = _app.CreateHttpClient("api-gateway", "http");
+        using var gatewayClient = _app!.CreateHttpClient("api-gateway", "http");
         foreach (var id in ids)
         {
             using var response = await gatewayClient.GetAsync($"/course?id={id}");
@@ -129,7 +119,7 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
 
         await Task.Delay(5000);
 
-        using var storageClient = _app.CreateHttpClient("service-filestorage", "http");
+        using var storageClient = _app!.CreateHttpClient("service-filestorage", "http");
         using var listResponse = await storageClient.GetAsync("/api/files");
         var fileList = JsonSerializer.Deserialize<List<string>>(await listResponse.Content.ReadAsStringAsync());
 
@@ -154,11 +144,7 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
     [Fact]
     public async Task MissingStorageObjectReturnsErrorTest()
     {
-        var cancellationToken = CancellationToken.None;
-        _app = await _builder!.BuildAsync(cancellationToken);
-        await _app.StartAsync(cancellationToken);
-
-        using var storageClient = _app.CreateHttpClient("service-filestorage", "http");
+        using var storageClient = _app!.CreateHttpClient("service-filestorage", "http");
         using var response = await storageClient.GetAsync("/api/files/course_99999.json");
 
         Assert.False(response.IsSuccessStatusCode);
@@ -169,6 +155,5 @@ public class IntegrationTest(ITestOutputHelper output) : IAsyncLifetime
     {
         await _app!.StopAsync();
         await _app.DisposeAsync();
-        await _builder!.DisposeAsync();
     }
 }
